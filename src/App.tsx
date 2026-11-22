@@ -30,6 +30,17 @@ import { ISONIL_CONTACT, PAGE_MANIFEST } from './data/isonilProfileData';
 import { generateIsonilPdf } from './utils/generateIsonilPdf';
 
 const TOTAL_PAGES = PAGE_MANIFEST.length;
+const A4_WIDTH_PX = (210 * 96) / 25.4; // Exact 210mm in CSS pixels (~793.7px)
+
+function computeResponsiveSheetScale(viewportWidth: number): number {
+  if (viewportWidth < 640) return 1;
+  const horizontalGutter =
+    viewportWidth < 900 ? 36 : viewportWidth < 1280 ? 52 : viewportWidth < 1536 ? 76 : 112;
+  const maxReadableWidth = 1280;
+  const targetWidth = Math.min(viewportWidth - horizontalGutter, maxReadableWidth);
+  const rawScale = targetWidth / A4_WIDTH_PX;
+  return Math.max(0.72, Math.min(1.61, Number(rawScale.toFixed(3))));
+}
 
 export default function App() {
   const [viewMode, setViewMode] = useState<'continuous' | 'single'>('continuous');
@@ -37,6 +48,23 @@ export default function App() {
   const [isGeneratingPdf, setIsGeneratingPdf] = useState<boolean>(false);
   const [exportStatusMessage, setExportStatusMessage] = useState<string | null>(null);
   const [isMobileSheetOpen, setIsMobileSheetOpen] = useState<boolean>(false);
+  const [sheetScale, setSheetScale] = useState<number>(() =>
+    typeof window !== 'undefined'
+      ? computeResponsiveSheetScale(document.documentElement.clientWidth || window.innerWidth)
+      : 1.38
+  );
+
+  // Dynamically fit A4 sheet proportionally to screen width (screen view only)
+  useEffect(() => {
+    const updateScale = () => {
+      const vw = document.documentElement.clientWidth || window.innerWidth;
+      setSheetScale(computeResponsiveSheetScale(vw));
+    };
+
+    updateScale();
+    window.addEventListener('resize', updateScale, { passive: true });
+    return () => window.removeEventListener('resize', updateScale);
+  }, []);
 
   // Track visible page accurately while scrolling in continuous mode
   useEffect(() => {
@@ -229,7 +257,7 @@ export default function App() {
 
       {/* Desktop Secondary Document Workspace Toolbar (Hidden on Mobile & Print) */}
       <div className="no-print hidden md:block bg-[#EAECEF] border-b border-[#D1D6DF] px-6 py-2.5">
-        <div className="max-w-[1200px] mx-auto flex flex-wrap items-center justify-between gap-4">
+        <div className="max-w-[1280px] mx-auto flex flex-wrap items-center justify-between gap-4">
           {/* Page Jump Segmented Buttons */}
           <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
             {PAGE_MANIFEST.map((page) => {
@@ -309,8 +337,11 @@ export default function App() {
         </div>
       )}
 
-      {/* Main A4 Document Presentation Area */}
-      <main className="flex-1 py-4 sm:py-8 px-3 sm:px-6 pb-24 md:pb-8 print-container flex flex-col items-center gap-5 sm:gap-8">
+      {/* Main A4 Document Presentation Area (Enlarged on Screen, Exact A4 in Print) */}
+      <main
+        style={{ '--sheet-scale': sheetScale } as React.CSSProperties}
+        className="screen-doc-stage flex-1 py-3 sm:py-5 px-1.5 sm:px-4 pb-24 md:pb-8 print-container flex flex-col items-center gap-4 sm:gap-6"
+      >
         {viewMode === 'continuous' ? (
           <>
             <Page1Cover />
@@ -326,7 +357,7 @@ export default function App() {
             {renderSinglePage(activePage)}
 
             {/* Single-page Stepper Controls (Touch-Friendly 44px Hitboxes, Hidden in Print) */}
-            <div className="no-print w-full max-w-[210mm] sm:w-auto flex items-center justify-between gap-3 sm:gap-6 bg-[#F6F7F9] border border-[#D1D6DF] px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-xs shadow-xs">
+            <div className="no-print w-full sm:w-auto flex items-center justify-between gap-3 sm:gap-6 bg-[#F6F7F9] border border-[#D1D6DF] px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-xs shadow-xs">
               <button
                 type="button"
                 onClick={() => navigateToPage(Math.max(1, activePage - 1))}
@@ -355,7 +386,7 @@ export default function App() {
 
       {/* Quiet Institutional Footer (Hidden in Print, extra bottom clearance on mobile for thumb bar) */}
       <footer className="no-print bg-[#0B0F17] text-[#C7CDD8] border-t border-[#232B3A] px-5 sm:px-6 pt-6 pb-24 md:pb-6 text-xs">
-        <div className="max-w-[1100px] mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="max-w-[1280px] mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="font-display font-bold tracking-[0.2em] text-[#E2E6EC]">
               {ISONIL_CONTACT.companyName}
