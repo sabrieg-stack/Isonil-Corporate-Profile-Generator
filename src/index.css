@@ -1,0 +1,133 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-sans: 'Public Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+
+    /* ISONIL Official Website Brand Palette */
+    --color-navy-950: #0b0f17;
+    --color-navy-900: #131822;
+    --color-navy-800: #1c2331;
+    --color-navy-700: #2b3447;
+    --color-crimson-600: #c81e24;
+    --color-crimson-500: #dc262c;
+    --color-champagne: #efebd2;
+    --color-steel-400: #a7b0be;
+    --color-paper: #f6f7f9;
+    --color-paper-alt: #eaecef;
+  }
+
+  html, body {
+    overflow-x: clip;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: #dce0e6;
+    color: #131822;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    padding: 0;
+  }
+
+  h1, h2, h3, h4, .font-display {
+    font-family: var(--font-display);
+  }
+
+  .font-mono-tabular {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Screen A4 Sheet Representation */
+.a4-sheet {
+  width: 210mm;
+  height: 297mm;
+  min-height: 297mm;
+  max-height: 297mm;
+  background-color: #f6f7f9;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  scroll-margin-top: 76px;
+  box-shadow: 0 12px 36px -8px rgba(11, 15, 23, 0.16), 0 2px 6px -1px rgba(11, 15, 23, 0.08);
+}
+
+@media (max-width: 860px) {
+  .a4-sheet {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    min-height: auto;
+    max-height: none;
+    overflow: visible;
+    scroll-margin-top: 68px;
+    border-radius: 2px;
+    box-shadow: 0 6px 20px -6px rgba(11, 15, 23, 0.14), 0 1px 3px rgba(11, 15, 23, 0.06);
+  }
+}
+
+/* Exact A4 Print Layout Rules */
+@page {
+  size: A4 portrait;
+  margin: 0mm;
+}
+
+@media print {
+  html, body {
+    width: 210mm;
+    background-color: #f6f7f9 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-container {
+    padding: 0 !important;
+    margin: 0 !important;
+    gap: 0 !important;
+    display: block !important;
+  }
+
+  .a4-sheet {
+    width: 210mm !important;
+    height: 297mm !important;
+    min-height: 297mm !important;
+    max-height: 297mm !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .a4-sheet:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+}

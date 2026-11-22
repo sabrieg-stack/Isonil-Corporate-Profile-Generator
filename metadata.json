@@ -1,0 +1,6 @@
+{
+  "name": "ISONIL — Profil d'entreprise | Isolation thermique industrielle au Maroc",
+  "description": "Profil d'entreprise officiel et dossier de présentation A4 d'ISONIL, spécialiste de l'isolation thermique industrielle, du calorifugeage et des matelas isolants sur mesure au Maroc.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
