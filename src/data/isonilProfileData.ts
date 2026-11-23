@@ -1,3 +1,6 @@
+import coverIndustrialPipingImg from '../assets/images/isonil_cover_industrial_piping_1794613415284.jpg';
+import insulatedManifoldImg from '../assets/images/isonil_insulated_vessels_manifold_1794625908824.jpg';
+
 export interface ApproachStep {
   number: string;
   phase: string;
@@ -37,10 +40,10 @@ export interface CoreCommitment {
 
 export const ISONIL_IMAGES = {
   logo: '/assets/aistudio/1000129415_f419bc17.png',
-  coverIndustrialPiping: '/src/assets/images/isonil_cover_industrial_piping_1794613415284.jpg',
+  coverIndustrialPiping: coverIndustrialPipingImg,
   technicianCladding: '/assets/aistudio/1000127391_10ae27f3.jpg',
   technicianPrecision: '/assets/aistudio/Gddd_bdc31203.jpg',
-  insulatedManifold: '/src/assets/images/isonil_insulated_vessels_manifold_1794625908824.jpg',
+  insulatedManifold: insulatedManifoldImg,
 } as const;
 
 export const ISONIL_CONTACT = {
@@ -92,7 +95,7 @@ export const EXECUTIVE_OVERVIEW = {
     {
       stakeholder: 'Maintenance',
       priority: 'Accessibilité des organes',
-      response: 'Ouvrages durables et matelas démontables facilitant les contrôles réguliers.',
+      response: 'Ouvrages durables et matelas démontables repérés facilitant les contrôles réguliers.',
     },
     {
       stakeholder: 'Ingénierie & Énergie',
@@ -130,19 +133,19 @@ export const TECHNICAL_SYSTEMS_MATRIX: SystemMatrixRow[] = [
     system: 'Calorifugeage chaud',
     targetEquipment: 'Tuyauteries vapeur, chaudières, cuves, échangeurs',
     primaryRole: 'Confinement thermique & protection contre les brûlures',
-    protectionFinish: 'Habillage métallique ajusté',
+    protectionFinish: 'Tôlerie de protection étanchée (selon cahier des charges)',
   },
   {
     system: 'Matelas amovibles',
-    targetEquipment: 'Vannes, brides, filtres, pompes, régulateurs',
+    targetEquipment: 'Vannes, brides, filtres, pompes, coudes et points singuliers',
     primaryRole: 'Isolation des géométries complexes sans pont thermique',
-    protectionFinish: 'Housse technique sanglée réutilisable',
+    protectionFinish: 'Housse sanglée réutilisable avec repérage',
   },
   {
     system: 'Isolation frigorifique',
     targetEquipment: 'Réseaux d’eau glacée, saumure, groupes froids',
-    primaryRole: 'Maintien des basses températures & anti-condensation',
-    protectionFinish: 'Barrière pare-vapeur continue',
+    primaryRole: 'Maintien des basses températures & prévention de la condensation',
+    protectionFinish: 'Barrière pare-vapeur continue étanchée',
   },
 ];
 
@@ -169,7 +172,7 @@ export const APPROACH_STEPS: ApproachStep[] = [
     number: '04',
     phase: 'Exécution',
     title: 'Exécution soignée et précision des finitions',
-    deliverable: 'Continuité d’enveloppe et ajustement des jonctions',
+    deliverable: 'Continuité d’enveloppe et étanchéité des jonctions',
   },
   {
     number: '05',
@@ -198,17 +201,17 @@ export const SERVICES_LIST: ServiceItem[] = [
     index: '02',
     code: 'MAT-AMV',
     title: 'Matelas isolants sur mesure et amovibles',
-    scope: 'Vannes, brides et équipements nécessitant des interventions régulières',
+    scope: 'Vannes, brides et points singuliers nécessitant des interventions régulières',
     description:
-      'Housses souples démontables et réutilisables permettant un accès immédiat lors des contrôles.',
+      'Housses souples démontables, repérées et réutilisables pour un accès rapide et une repose fidèle.',
   },
   {
     index: '03',
     code: 'AUD-NRJ',
     title: 'Audit et évaluation de la performance énergétique',
-    scope: 'Analyse des déperditions thermiques et identification de pistes d’amélioration',
+    scope: 'Diagnostic terrain des déperditions thermiques et pistes d’amélioration',
     description:
-      'Inspection de terrain recensant les zones à nu et les priorités de correction thermique.',
+      'Relevé visuel et métré recensant les zones à nu, points singuliers et priorités de correction.',
   },
   {
     index: '04',
@@ -216,7 +219,7 @@ export const SERVICES_LIST: ServiceItem[] = [
     title: 'Protection anti-condensation et isolation frigorifique',
     scope: 'Équipements de refroidissement et réseaux frigorifiques',
     description:
-      'Traitement étanche des circuits froids prévenant le ruissellement et la corrosion externe.',
+      'Traitement étanche des circuits froids prévenant le ruissellement et la corrosion sous calorifugeage (CUI).',
   },
   {
     index: '05',
@@ -265,13 +268,13 @@ export const CLIENT_BENEFITS: ClientBenefit[] = [
     index: '05',
     domain: 'Maintenance',
     title: 'Accès facilité aux équipements grâce aux matelas amovibles',
-    description: 'Démontage rapide sans dégradation de l’isolant lors des opérations d’entretien.',
+    description: 'Démontage rapide sans dégradation et repérage clair lors des opérations d’entretien.',
   },
   {
     index: '06',
     domain: 'Actifs',
     title: 'Entretien et rénovation des systèmes d’isolation existants',
-    description: 'Préservation durable des réseaux contre l’humidité et les chocs mécaniques.',
+    description: 'Préservation durable des réseaux contre l’humidité, la CUI et les chocs mécaniques.',
   },
 ];
 
@@ -284,7 +287,7 @@ export const COMMITMENTS_LIST: CoreCommitment[] = [
       'Matériaux adaptés aux exigences du projet et attention rigoureuse portée aux finitions et jonctions.',
     checkpoints: [
       'Continuité d’isolant et traitement des points singuliers',
-      'Ajustement soigné des revêtements et jonctions',
+      'Étanchéité des recouvrements et prévention des infiltrations (CUI)',
       'Vérification de la tenue mécanique avant réception',
     ],
   },

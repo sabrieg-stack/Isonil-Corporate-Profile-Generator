@@ -18,6 +18,9 @@ interface CropOptions {
   syRatio?: number;
   swRatio?: number;
   shRatio?: number;
+  targetAspectRatio?: number;
+  anchorX?: number;
+  anchorY?: number;
   format?: 'image/jpeg' | 'image/png';
 }
 
@@ -52,10 +55,27 @@ async function loadImageProcessedDataUrl(
       element.src = src;
     });
 
-    const sx = (crop?.sxRatio ?? 0) * img.naturalWidth;
-    const sy = (crop?.syRatio ?? 0) * img.naturalHeight;
-    const sw = (crop?.swRatio ?? 1) * img.naturalWidth;
-    const sh = (crop?.shRatio ?? 1) * img.naturalHeight;
+    let sx = (crop?.sxRatio ?? 0) * img.naturalWidth;
+    let sy = (crop?.syRatio ?? 0) * img.naturalHeight;
+    let sw = (crop?.swRatio ?? 1) * img.naturalWidth;
+    let sh = (crop?.shRatio ?? 1) * img.naturalHeight;
+
+    // Apply exact object-fit: cover cropping so PDF frames never stretch or squash images
+    if (crop?.targetAspectRatio && sw > 0 && sh > 0) {
+      const sourceAspect = sw / sh;
+      const anchorX = crop.anchorX ?? 0.5;
+      const anchorY = crop.anchorY ?? 0.5;
+
+      if (sourceAspect > crop.targetAspectRatio) {
+        const nextSw = sh * crop.targetAspectRatio;
+        sx += (sw - nextSw) * anchorX;
+        sw = nextSw;
+      } else if (sourceAspect < crop.targetAspectRatio) {
+        const nextSh = sw / crop.targetAspectRatio;
+        sy += (sh - nextSh) * anchorY;
+        sh = nextSh;
+      }
+    }
 
     const canvas = document.createElement('canvas');
     canvas.width = Math.max(1, Math.round(sw));
@@ -163,16 +183,28 @@ export async function generateIsonilPdf(): Promise<void> {
         shRatio: 0.8,
         format: 'image/png',
       }),
-      loadImageProcessedDataUrl(ISONIL_IMAGES.coverIndustrialPiping),
-      loadImageProcessedDataUrl(ISONIL_IMAGES.technicianCladding),
-      loadImageProcessedDataUrl(ISONIL_IMAGES.technicianPrecision, {
-        sxRatio: 0.0,
-        syRatio: 0.12,
-        swRatio: 0.86,
-        shRatio: 0.88,
+      loadImageProcessedDataUrl(ISONIL_IMAGES.coverIndustrialPiping, {
+        targetAspectRatio: 174 / 144,
         format: 'image/jpeg',
       }),
-      loadImageProcessedDataUrl(ISONIL_IMAGES.insulatedManifold),
+      loadImageProcessedDataUrl(ISONIL_IMAGES.technicianCladding, {
+        targetAspectRatio: 86 / 50,
+        format: 'image/jpeg',
+      }),
+      loadImageProcessedDataUrl(ISONIL_IMAGES.technicianPrecision, {
+        sxRatio: 0.0,
+        syRatio: 0.14,
+        swRatio: 0.85,
+        shRatio: 0.86,
+        targetAspectRatio: 86 / 50,
+        anchorX: 0.35,
+        anchorY: 0.65,
+        format: 'image/jpeg',
+      }),
+      loadImageProcessedDataUrl(ISONIL_IMAGES.insulatedManifold, {
+        targetAspectRatio: 178 / 66,
+        format: 'image/jpeg',
+      }),
       QRCode.toDataURL(ISONIL_CONTACT.websiteUrl, {
         width: 240,
         margin: 1,
@@ -482,7 +514,7 @@ export async function generateIsonilPdf(): Promise<void> {
   doc.text('SÉQUENCE D’EXÉCUTION SUR SITE', 21, y + 7);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(...RGB.inkMuted);
-  doc.text('01 → 06 · De la visite à la réception', 189, y + 7, { align: 'right' });
+  doc.text('01 à 06 · De la visite à la réception', 189, y + 7, { align: 'right' });
 
   doc.setDrawColor(188, 195, 208);
   doc.setLineWidth(0.3);

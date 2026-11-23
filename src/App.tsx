@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Download,
   Printer,
@@ -48,23 +48,120 @@ export default function App() {
   const [isGeneratingPdf, setIsGeneratingPdf] = useState<boolean>(false);
   const [exportStatusMessage, setExportStatusMessage] = useState<string | null>(null);
   const [isMobileSheetOpen, setIsMobileSheetOpen] = useState<boolean>(false);
+  const [scrollProgress, setScrollProgress] = useState<number>(0);
   const [sheetScale, setSheetScale] = useState<number>(() =>
     typeof window !== 'undefined'
       ? computeResponsiveSheetScale(document.documentElement.clientWidth || window.innerWidth)
       : 1.38
   );
 
-  // Dynamically fit A4 sheet proportionally to screen width (screen view only)
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+
+  const navigateToPage = useCallback(
+    (pageNumber: number) => {
+      const bounded = Math.max(1, Math.min(TOTAL_PAGES, pageNumber));
+      setActivePage(bounded);
+      setIsMobileSheetOpen(false);
+      if (viewMode === 'continuous') {
+        const target = document.getElementById(`page-${bounded}`);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    },
+    [viewMode]
+  );
+
+  // Dynamically fit A4 sheet proportionally to screen width (debounced + orientationchange)
   useEffect(() => {
+    let rafId: number | null = null;
     const updateScale = () => {
-      const vw = document.documentElement.clientWidth || window.innerWidth;
-      setSheetScale(computeResponsiveSheetScale(vw));
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        const vw = document.documentElement.clientWidth || window.innerWidth;
+        setSheetScale(computeResponsiveSheetScale(vw));
+      });
     };
 
     updateScale();
     window.addEventListener('resize', updateScale, { passive: true });
-    return () => window.removeEventListener('resize', updateScale);
+    window.addEventListener('orientationchange', updateScale, { passive: true });
+    return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      window.removeEventListener('resize', updateScale);
+      window.removeEventListener('orientationchange', updateScale);
+    };
   }, []);
+
+  // Track subtle reading progress bar along bottom of sticky header
+  useEffect(() => {
+    if (viewMode === 'single') {
+      setScrollProgress((activePage / TOTAL_PAGES) * 100);
+      return;
+    }
+
+    const updateScroll = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (docHeight <= 0) {
+        setScrollProgress(0);
+      } else {
+        setScrollProgress(Math.max(0, Math.min(100, (scrollTop / docHeight) * 100)));
+      }
+    };
+
+    updateScroll();
+    window.addEventListener('scroll', updateScroll, { passive: true });
+    window.addEventListener('resize', updateScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', updateScroll);
+      window.removeEventListener('resize', updateScroll);
+    };
+  }, [viewMode, activePage]);
+
+  // Lock background scroll & enable Escape key when mobile bottom sheet is open
+  useEffect(() => {
+    if (!isMobileSheetOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsMobileSheetOpen(false);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [isMobileSheetOpen]);
+
+  // Keyboard arrow navigation in single-page presentation mode
+  useEffect(() => {
+    if (viewMode !== 'single' || isMobileSheetOpen) return;
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+        return;
+      }
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        navigateToPage(activePage + 1);
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        navigateToPage(activePage - 1);
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [viewMode, activePage, isMobileSheetOpen, navigateToPage]);
 
   // Track visible page accurately while scrolling in continuous mode
   useEffect(() => {
@@ -99,16 +196,23 @@ export default function App() {
     return () => observer.disconnect();
   }, [viewMode]);
 
-  const navigateToPage = (pageNumber: number) => {
-    setActivePage(pageNumber);
-    setIsMobileSheetOpen(false);
-    if (viewMode === 'continuous') {
-      const target = document.getElementById(`page-${pageNumber}`);
-      if (target) {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (viewMode !== 'single' || e.touches.length !== 1) return;
+    touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (viewMode !== 'single' || !touchStartRef.current || e.changedTouches.length !== 1) return;
+    const dx = e.changedTouches[0].clientX - touchStartRef.current.x;
+    const dy = e.changedTouches[0].clientY - touchStartRef.current.y;
+    touchStartRef.current = null;
+
+    if (Math.abs(dx) >= 55 && Math.abs(dy) < 48) {
+      if (dx < 0 && activePage < TOTAL_PAGES) {
+        navigateToPage(activePage + 1);
+      } else if (dx > 0 && activePage > 1) {
+        navigateToPage(activePage - 1);
       }
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -173,7 +277,7 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col bg-[#DCE0E6] text-[#131822]">
       {/* Compact Sticky Top Navigation Bar (Matches Official ISONIL Website Header) */}
-      <header className="no-print sticky top-0 z-30 bg-[#131822]/95 backdrop-blur-md text-[#F6F7F9] border-b border-[#232B3A] px-4 sm:px-6 h-14 flex items-center justify-between gap-4 sm:gap-8">
+      <header className="no-print sticky top-0 z-30 bg-[#131822]/95 backdrop-blur-md text-[#F6F7F9] border-b border-[#232B3A] px-4 sm:px-6 h-14 flex items-center justify-between gap-4 sm:gap-8 relative">
         {/* Zone 1: Brand Title */}
         <a
           href="#page-1"
@@ -190,33 +294,42 @@ export default function App() {
         {/* Zone 2: Desktop Single-Line Navigation Links */}
         <nav
           aria-label="Sections du profil d’entreprise"
-          className="hidden lg:flex items-center gap-6 text-sm font-medium text-[#C7CDD8]"
+          className="hidden lg:flex items-center gap-6 text-sm font-medium text-[#C7CDD8] h-full"
         >
-          {PAGE_MANIFEST.slice(1).map((item) => (
-            <a
-              key={item.id}
-              href={`#${item.id}`}
-              onClick={(e) => {
-                e.preventDefault();
-                navigateToPage(item.pageNumber);
-              }}
-              className={`hover:text-[#EFEBD2] hover:underline underline-offset-4 transition-colors whitespace-nowrap shrink-0 ${
-                activePage === item.pageNumber ? 'text-[#EFEBD2]' : ''
-              }`}
-            >
-              {item.pageNumber === 4
-                ? 'Prestations'
-                : item.pageNumber === 5
-                  ? 'Impact'
-                  : item.pageNumber === 6
-                    ? 'Engagements'
-                    : item.pageNumber === 7
-                      ? 'Contact'
-                      : item.pageNumber === 3
-                        ? 'Ingénierie'
-                        : 'Positionnement'}
-            </a>
-          ))}
+          {PAGE_MANIFEST.slice(1).map((item) => {
+            const isActive = activePage === item.pageNumber;
+            return (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigateToPage(item.pageNumber);
+                }}
+                className={`relative h-full inline-flex items-center hover:text-[#EFEBD2] transition-colors whitespace-nowrap shrink-0 ${
+                  isActive ? 'text-[#EFEBD2]' : ''
+                }`}
+              >
+                {item.pageNumber === 4
+                  ? 'Prestations'
+                  : item.pageNumber === 5
+                    ? 'Impact'
+                    : item.pageNumber === 6
+                      ? 'Engagements'
+                      : item.pageNumber === 7
+                        ? 'Contact'
+                        : item.pageNumber === 3
+                          ? 'Ingénierie'
+                          : 'Positionnement'}
+                {isActive && (
+                  <span
+                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#C81E24]"
+                    aria-hidden="true"
+                  />
+                )}
+              </a>
+            );
+          })}
         </nav>
 
         {/* Zone 3: Responsive Header Actions (Call + Menu on mobile like isonil.com, Primary PDF on desktop) */}
@@ -249,9 +362,20 @@ export default function App() {
           >
             <Download className="w-3.5 h-3.5" />
             <span>
-              {isGeneratingPdf ? 'Export PDF en cours...' : 'Télécharger en PDF / Imprimer'}
+              {isGeneratingPdf ? 'Export PDF en cours...' : 'Télécharger le PDF (A4)'}
             </span>
           </button>
+        </div>
+
+        {/* Subtle 2px Reading Progress Indicator (Screen Only) */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-[2px] bg-transparent pointer-events-none"
+          aria-hidden="true"
+        >
+          <div
+            className="h-full bg-[#C81E24] transition-[width] duration-150 ease-out"
+            style={{ width: `${scrollProgress}%` }}
+          />
         </div>
       </header>
 
@@ -321,7 +445,7 @@ export default function App() {
       {/* Feedback Banner on PDF Generation (Hidden in Print) */}
       {exportStatusMessage && (
         <div className="no-print bg-[#0B0F17] text-[#F6F7F9] px-4 sm:px-6 py-2.5 border-b border-[#2B3447]">
-          <div className="max-w-[1200px] mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs">
+          <div className="max-w-[1280px] mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs">
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-[#EFEBD2] shrink-0" />
               <span>{exportStatusMessage}</span>
@@ -340,6 +464,8 @@ export default function App() {
       {/* Main A4 Document Presentation Area (Enlarged on Screen, Exact A4 in Print) */}
       <main
         style={{ '--sheet-scale': sheetScale } as React.CSSProperties}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
         className="screen-doc-stage flex-1 py-3 sm:py-5 px-1.5 sm:px-4 pb-24 md:pb-8 print-container flex flex-col items-center gap-4 sm:gap-6"
       >
         {viewMode === 'continuous' ? (
@@ -360,7 +486,7 @@ export default function App() {
             <div className="no-print w-full sm:w-auto flex items-center justify-between gap-3 sm:gap-6 bg-[#F6F7F9] border border-[#D1D6DF] px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-xs shadow-xs">
               <button
                 type="button"
-                onClick={() => navigateToPage(Math.max(1, activePage - 1))}
+                onClick={() => navigateToPage(activePage - 1)}
                 disabled={activePage === 1}
                 className="inline-flex items-center gap-1 min-h-[44px] sm:min-h-0 px-2 text-xs font-medium text-[#131822] disabled:opacity-35 cursor-pointer whitespace-nowrap"
               >
@@ -372,7 +498,7 @@ export default function App() {
               </span>
               <button
                 type="button"
-                onClick={() => navigateToPage(Math.min(TOTAL_PAGES, activePage + 1))}
+                onClick={() => navigateToPage(activePage + 1)}
                 disabled={activePage === TOTAL_PAGES}
                 className="inline-flex items-center gap-1 min-h-[44px] sm:min-h-0 px-2 text-xs font-medium text-[#131822] disabled:opacity-35 cursor-pointer whitespace-nowrap"
               >

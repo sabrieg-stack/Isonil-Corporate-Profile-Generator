@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
+import { Copy, Check } from 'lucide-react';
 import { A4PageLayout, IsonilWordmark } from './A4PageLayout';
 import { ResilientImage } from './ResilientImage';
 import {
@@ -607,6 +608,16 @@ export const Page6CommitmentsWorkflow: React.FC = () => {
    ========================================================================== */
 export const Page7Contact: React.FC = () => {
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
+  const [copiedField, setCopiedField] = useState<'phone' | 'email' | null>(null);
+
+  const handleCopy = (field: 'phone' | 'email', value: string) => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(value).then(() => {
+        setCopiedField(field);
+        setTimeout(() => setCopiedField((prev) => (prev === field ? null : prev)), 2200);
+      }).catch(() => {});
+    }
+  };
 
   useEffect(() => {
     QRCode.toDataURL(ISONIL_CONTACT.websiteUrl, {
@@ -671,23 +682,53 @@ export const Page7Contact: React.FC = () => {
                   <div className="text-[10px] font-mono-tabular uppercase tracking-[0.15em] text-[#98A2B3] mb-1">
                     Téléphone
                   </div>
-                  <a
-                    href={ISONIL_CONTACT.phoneHref}
-                    className="inline-flex items-center min-h-[44px] sm:min-h-0 font-mono-tabular text-[16px] sm:text-[15px] font-semibold text-white hover:text-[#EFEBD2] transition-colors"
-                  >
-                    {ISONIL_CONTACT.phoneDisplay}
-                  </a>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={ISONIL_CONTACT.phoneHref}
+                      className="inline-flex items-center min-h-[44px] sm:min-h-0 font-mono-tabular text-[16px] sm:text-[15px] font-semibold text-white hover:text-[#EFEBD2] transition-colors"
+                    >
+                      {ISONIL_CONTACT.phoneDisplay}
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => handleCopy('phone', ISONIL_CONTACT.phoneDisplay)}
+                      aria-label="Copier le numéro de téléphone"
+                      title="Copier le numéro"
+                      className="no-print inline-flex items-center justify-center min-w-[32px] min-h-[32px] sm:min-w-[24px] sm:min-h-[24px] text-[#98A2B3] hover:text-[#EFEBD2] rounded-xs transition-colors cursor-pointer"
+                    >
+                      {copiedField === 'phone' ? (
+                        <Check className="w-3.5 h-3.5 text-[#EFEBD2]" />
+                      ) : (
+                        <Copy className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <div className="text-[10px] font-mono-tabular uppercase tracking-[0.15em] text-[#98A2B3] mb-1">
                     E-mail
                   </div>
-                  <a
-                    href={ISONIL_CONTACT.emailHref}
-                    className="inline-flex items-center min-h-[44px] sm:min-h-0 font-mono-tabular text-[14.5px] sm:text-[14px] font-semibold text-white hover:text-[#EFEBD2] transition-colors break-all"
-                  >
-                    {ISONIL_CONTACT.email}
-                  </a>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={ISONIL_CONTACT.emailHref}
+                      className="inline-flex items-center min-h-[44px] sm:min-h-0 font-mono-tabular text-[14.5px] sm:text-[14px] font-semibold text-white hover:text-[#EFEBD2] transition-colors break-all"
+                    >
+                      {ISONIL_CONTACT.email}
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => handleCopy('email', ISONIL_CONTACT.email)}
+                      aria-label="Copier l’adresse e-mail"
+                      title="Copier l’e-mail"
+                      className="no-print inline-flex items-center justify-center min-w-[32px] min-h-[32px] sm:min-w-[24px] sm:min-h-[24px] text-[#98A2B3] hover:text-[#EFEBD2] rounded-xs transition-colors cursor-pointer shrink-0"
+                    >
+                      {copiedField === 'email' ? (
+                        <Check className="w-3.5 h-3.5 text-[#EFEBD2]" />
+                      ) : (
+                        <Copy className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
 
