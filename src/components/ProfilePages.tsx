@@ -9,6 +9,8 @@ import {
   COMMITMENTS_LIST,
   CONTACT_INTAKE_CUES,
   EXECUTIVE_OVERVIEW,
+  FIELD_CRAFTSMANSHIP_CUES,
+  FIELD_SAMPLES,
   ISONIL_CONTACT,
   ISONIL_IMAGES,
   PROCUREMENT_WORKFLOW,
@@ -16,12 +18,20 @@ import {
   TECHNICAL_SYSTEMS_MATRIX,
 } from '../data/isonilProfileData';
 
+const TOTAL_PAGES = 8;
+
 /* ==========================================================================
-   PAGE 1 — COUVERTURE ARCHITECTURALE (IDENTITÉ OFFICIELLE ISONIL.COM)
+   PAGE 1 — COUVERTURE ARCHITECTURALE (PHOTO PRINCIPALE CONSERVÉE)
    ========================================================================== */
 export const Page1Cover: React.FC = () => {
   return (
-    <A4PageLayout id="page-1" pageNumber={1} totalPages={7} sectionLabel="Couverture" variant="cover">
+    <A4PageLayout
+      id="page-1"
+      pageNumber={1}
+      totalPages={TOTAL_PAGES}
+      sectionLabel="Couverture"
+      variant="cover"
+    >
       <div className="h-full flex flex-col justify-between bg-[#131822] text-[#F6F7F9] relative">
         {/* Asymmetric vertical ISONIL red editorial accent along left edge */}
         <div
@@ -60,7 +70,7 @@ export const Page1Cover: React.FC = () => {
           </div>
         </div>
 
-        {/* Dominant Framed Industrial Plate */}
+        {/* Dominant Framed Industrial Plate (Main Cover Image Kept Intact) */}
         <div className="h-[235px] sm:h-auto sm:flex-1 sm:min-h-[112mm] sm:max-h-[144mm] px-5 sm:px-[18mm] mb-6 sm:mb-0 flex flex-col">
           <div className="flex-1 relative border border-[#2B3447] overflow-hidden">
             <ResilientImage
@@ -116,7 +126,12 @@ export const Page1Cover: React.FC = () => {
    ========================================================================== */
 export const Page2Positioning: React.FC = () => {
   return (
-    <A4PageLayout id="page-2" pageNumber={2} totalPages={7} sectionLabel="01 · Positionnement">
+    <A4PageLayout
+      id="page-2"
+      pageNumber={2}
+      totalPages={TOTAL_PAGES}
+      sectionLabel="01 · Positionnement"
+    >
       <div className="flex flex-col justify-between h-full gap-6 sm:gap-0">
         {/* Heading */}
         <div>
@@ -134,7 +149,7 @@ export const Page2Positioning: React.FC = () => {
 
         {/* Asymmetric 12-Column Reading Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-12 gap-6 sm:gap-7 items-stretch sm:my-5">
-          {/* Left 4-Col Anchor Column (Cool Architectural Steel Surface) */}
+          {/* Left 4-Col Anchor Column */}
           <aside className="sm:col-span-4 bg-[#EAECEF] border-t-2 border-[#131822] p-5 flex flex-col justify-between">
             <div>
               <div className="text-[10px] font-mono-tabular uppercase tracking-[0.15em] text-[#5B6472] mb-2">
@@ -244,7 +259,12 @@ export const Page2Positioning: React.FC = () => {
    ========================================================================== */
 export const Page3Engineering: React.FC = () => {
   return (
-    <A4PageLayout id="page-3" pageNumber={3} totalPages={7} sectionLabel="02 · Ingénierie & Méthode">
+    <A4PageLayout
+      id="page-3"
+      pageNumber={3}
+      totalPages={TOTAL_PAGES}
+      sectionLabel="02 · Ingénierie & Méthode"
+    >
       <div className="flex flex-col justify-between h-full gap-6 sm:gap-0">
         {/* Heading */}
         <div>
@@ -266,7 +286,6 @@ export const Page3Engineering: React.FC = () => {
             Typologie des systèmes mis en œuvre
           </div>
           <div className="border-t-2 sm:border-t-0 border-b border-[#131822]">
-            {/* Desktop 4-Column Table Header */}
             <div className="hidden sm:grid sm:grid-cols-12 gap-3 bg-[#131822] text-[#EFEBD2] px-4 py-2.5 text-[10px] font-mono-tabular uppercase tracking-wider">
               <div className="col-span-3">Système</div>
               <div className="col-span-3">Équipements</div>
@@ -314,7 +333,7 @@ export const Page3Engineering: React.FC = () => {
               Séquence d’exécution sur site
             </span>
             <span className="text-[10px] font-mono-tabular text-[#5B6472]">
-              01 → 06 · De la visite à la réception
+              01 à 06 · De la visite à la réception
             </span>
           </div>
           <div className="relative grid grid-cols-3 sm:grid-cols-6 gap-y-4 gap-x-2">
@@ -366,7 +385,12 @@ export const Page3Engineering: React.FC = () => {
    ========================================================================== */
 export const Page4Solutions: React.FC = () => {
   return (
-    <A4PageLayout id="page-4" pageNumber={4} totalPages={7} sectionLabel="03 · Prestations">
+    <A4PageLayout
+      id="page-4"
+      pageNumber={4}
+      totalPages={TOTAL_PAGES}
+      sectionLabel="03 · Prestations"
+    >
       <div className="flex flex-col justify-between h-full gap-6 sm:gap-0">
         {/* Heading */}
         <div>
@@ -443,16 +467,137 @@ export const Page4Solutions: React.FC = () => {
 };
 
 /* ==========================================================================
-   PAGE 5 — IMPACT OPÉRATIONNEL
+   PAGE 5 — RÉALISATIONS & SAVOIR-FAIRE TERRAIN (5 ÉCHANTILLONS RÉELS)
    ========================================================================== */
-export const Page5Performance: React.FC = () => {
+export const Page5FieldSamples: React.FC = () => {
+  const topRowSamples = FIELD_SAMPLES.slice(0, 2);
+  const bottomRowSamples = FIELD_SAMPLES.slice(2, 5);
+
   return (
-    <A4PageLayout id="page-5" pageNumber={5} totalPages={7} sectionLabel="04 · Impact Opérationnel">
+    <A4PageLayout
+      id="page-5"
+      pageNumber={5}
+      totalPages={TOTAL_PAGES}
+      sectionLabel="04 · Savoir-Faire Terrain"
+    >
+      <div className="flex flex-col justify-between h-full gap-5 sm:gap-0">
+        {/* Heading */}
+        <div>
+          <div className="text-[10.5px] font-mono-tabular uppercase tracking-[0.18em] text-[#C81E24] font-semibold mb-1.5">
+            04 · SAVOIR-FAIRE TERRAIN & EXEMPLES D’OUVRAGES
+          </div>
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
+            <div>
+              <h2
+                className="font-display font-bold text-[22px] sm:text-[26px] leading-[1.16] text-[#131822] tracking-tight"
+                style={{ textWrap: 'balance' }}
+              >
+                Exécution terrain sur tuyauteries, gaines et équipements
+              </h2>
+              <div className="h-[2px] w-14 bg-[#C81E24] mt-2.5" />
+            </div>
+            <div className="text-[10px] font-mono-tabular uppercase tracking-[0.12em] text-[#5B6472] sm:pb-1 shrink-0">
+              5 échantillons d’ouvrages calorifugés
+            </div>
+          </div>
+        </div>
+
+        {/* Row 1: 2 Prominent Architectural Plates (Piping Elbows & Duct Transition) */}
+        <div className="grid grid-cols-1 sm:grid-cols-12 gap-5 sm:mt-3.5">
+          {topRowSamples.map((sample) => (
+            <article key={sample.id} className="sm:col-span-6 flex flex-col">
+              <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-[#131822]">
+                <span className="font-mono-tabular text-[9.5px] font-semibold uppercase tracking-[0.14em] text-[#C81E24]">
+                  {sample.category}
+                </span>
+                <span className="font-mono-tabular text-[9.5px] text-[#5B6472] uppercase">
+                  {sample.figure}
+                </span>
+              </div>
+              <ResilientImage
+                src={sample.src}
+                alt={sample.alt}
+                className="h-[220px] sm:h-[65mm] w-full"
+                imgClassName={sample.imgClassName}
+              />
+              <div className="pt-2 pb-1.5 border-b border-[#D1D6DF]">
+                <h3 className="font-display font-semibold text-[13px] sm:text-[12.2px] text-[#131822] leading-snug">
+                  {sample.title}
+                </h3>
+                <p className="text-[11.5px] sm:text-[10.5px] text-[#4B5563] leading-[1.42] mt-0.5">
+                  {sample.caption}
+                </p>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        {/* Row 2: 3 Technical Craft Plates (Horizontal Vessel, Vertical Column, Domed Head) */}
+        <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 sm:mt-3.5">
+          {bottomRowSamples.map((sample) => (
+            <article key={sample.id} className="sm:col-span-4 flex flex-col">
+              <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-[#131822]">
+                <span className="font-mono-tabular text-[9px] font-semibold uppercase tracking-[0.12em] text-[#C81E24] truncate">
+                  {sample.category}
+                </span>
+                <span className="font-mono-tabular text-[9px] text-[#5B6472] uppercase shrink-0 ml-1">
+                  {sample.figure}
+                </span>
+              </div>
+              <ResilientImage
+                src={sample.src}
+                alt={sample.alt}
+                className="h-[215px] sm:h-[64mm] w-full"
+                imgClassName={sample.imgClassName}
+              />
+              <div className="pt-2 pb-1.5 border-b border-[#D1D6DF]">
+                <h3 className="font-display font-semibold text-[12.5px] sm:text-[11.6px] text-[#131822] leading-snug">
+                  {sample.title}
+                </h3>
+                <p className="text-[11.2px] sm:text-[10.1px] text-[#4B5563] leading-[1.38] mt-0.5">
+                  {sample.caption}
+                </p>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        {/* Recessed Technical Craftsmanship Strip */}
+        <div className="bg-[#EAECEF] border-l-2 border-[#131822] px-4 py-3 sm:mt-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 sm:divide-x sm:divide-[#D1D6DF]">
+            {FIELD_CRAFTSMANSHIP_CUES.map((cue, idx) => (
+              <div key={cue.label} className={idx > 0 ? 'sm:pl-4' : ''}>
+                <div className="font-mono-tabular text-[9.5px] font-semibold uppercase tracking-[0.14em] text-[#C81E24]">
+                  {cue.label}
+                </div>
+                <p className="text-[11.5px] sm:text-[10.5px] leading-[1.4] text-[#27303F] mt-0.5">
+                  {cue.detail}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </A4PageLayout>
+  );
+};
+
+/* ==========================================================================
+   PAGE 6 — IMPACT OPÉRATIONNEL
+   ========================================================================== */
+export const Page6Performance: React.FC = () => {
+  return (
+    <A4PageLayout
+      id="page-6"
+      pageNumber={6}
+      totalPages={TOTAL_PAGES}
+      sectionLabel="05 · Impact Opérationnel"
+    >
       <div className="flex flex-col justify-between h-full gap-6 sm:gap-0">
         {/* Heading */}
         <div>
           <div className="text-[10.5px] font-mono-tabular uppercase tracking-[0.18em] text-[#C81E24] font-semibold mb-1.5">
-            04 · IMPACT OPÉRATIONNEL
+            05 · IMPACT OPÉRATIONNEL
           </div>
           <h2
             className="font-display font-bold text-[22px] sm:text-[27px] leading-[1.18] text-[#131822] tracking-tight"
@@ -471,7 +616,7 @@ export const Page5Performance: React.FC = () => {
             className="h-[215px] sm:h-[68mm] w-full"
             imgClassName="w-full h-full object-cover object-center"
             caption="Réseaux calorifugés, cuves isolées et matelas amovibles sur points singuliers"
-            figureNumber="Fig. 03"
+            figureNumber="Fig. 08"
             captionPosition="bottom-bar"
           />
         </div>
@@ -507,16 +652,21 @@ export const Page5Performance: React.FC = () => {
 };
 
 /* ==========================================================================
-   PAGE 6 — ENGAGEMENTS & CIRCUIT D'INTERVENTION
+   PAGE 7 — ENGAGEMENTS & CIRCUIT D'INTERVENTION
    ========================================================================== */
-export const Page6CommitmentsWorkflow: React.FC = () => {
+export const Page7CommitmentsWorkflow: React.FC = () => {
   return (
-    <A4PageLayout id="page-6" pageNumber={6} totalPages={7} sectionLabel="05 · Engagements & HSE">
+    <A4PageLayout
+      id="page-7"
+      pageNumber={7}
+      totalPages={TOTAL_PAGES}
+      sectionLabel="06 · Engagements & HSE"
+    >
       <div className="flex flex-col justify-between h-full gap-6 sm:gap-0">
         {/* Heading */}
         <div>
           <div className="text-[10.5px] font-mono-tabular uppercase tracking-[0.18em] text-[#C81E24] font-semibold mb-1.5">
-            05 · ENGAGEMENTS D’EXÉCUTION & GOUVERNANCE
+            06 · ENGAGEMENTS D’EXÉCUTION & GOUVERNANCE
           </div>
           <h2
             className="font-display font-bold text-[22px] sm:text-[27px] leading-[1.18] text-[#131822] tracking-tight"
@@ -604,18 +754,21 @@ export const Page6CommitmentsWorkflow: React.FC = () => {
 };
 
 /* ==========================================================================
-   PAGE 7 — CONSULTATION & COORDONNÉES
+   PAGE 8 — CONSULTATION & COORDONNÉES
    ========================================================================== */
-export const Page7Contact: React.FC = () => {
+export const Page8Contact: React.FC = () => {
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const [copiedField, setCopiedField] = useState<'phone' | 'email' | null>(null);
 
   const handleCopy = (field: 'phone' | 'email', value: string) => {
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      navigator.clipboard.writeText(value).then(() => {
-        setCopiedField(field);
-        setTimeout(() => setCopiedField((prev) => (prev === field ? null : prev)), 2200);
-      }).catch(() => {});
+      navigator.clipboard
+        .writeText(value)
+        .then(() => {
+          setCopiedField(field);
+          setTimeout(() => setCopiedField((prev) => (prev === field ? null : prev)), 2200);
+        })
+        .catch(() => {});
     }
   };
 
@@ -634,12 +787,17 @@ export const Page7Contact: React.FC = () => {
   }, []);
 
   return (
-    <A4PageLayout id="page-7" pageNumber={7} totalPages={7} sectionLabel="06 · Contact">
+    <A4PageLayout
+      id="page-8"
+      pageNumber={8}
+      totalPages={TOTAL_PAGES}
+      sectionLabel="07 · Contact"
+    >
       <div className="flex flex-col justify-between h-full gap-6 sm:gap-0">
         {/* Heading */}
         <div>
           <div className="text-[10.5px] font-mono-tabular uppercase tracking-[0.18em] text-[#C81E24] font-semibold mb-1.5">
-            06 · CONSULTATION & COORDONNÉES
+            07 · CONSULTATION & COORDONNÉES
           </div>
           <h2
             className="font-display font-bold text-[24px] sm:text-[30px] leading-[1.16] text-[#131822] tracking-tight"
@@ -654,7 +812,7 @@ export const Page7Contact: React.FC = () => {
           </p>
         </div>
 
-        {/* Authoritative Contact Card (Midnight Navy Website Surface) */}
+        {/* Authoritative Contact Card */}
         <div className="bg-[#131822] text-[#F6F7F9] p-5 sm:p-7 sm:my-4 border-t-2 border-[#C81E24]">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 pb-5 mb-5 sm:mb-6 border-b border-[#2B3447]">
             <div>

@@ -38,12 +38,28 @@ export interface CoreCommitment {
   checkpoints: string[];
 }
 
+export interface FieldSampleItem {
+  id: string;
+  figure: string;
+  category: string;
+  title: string;
+  caption: string;
+  src: string;
+  alt: string;
+  imgClassName: string;
+}
+
 export const ISONIL_IMAGES = {
   logo: '/assets/aistudio/1000129415_f419bc17.png',
   coverIndustrialPiping: coverIndustrialPipingImg,
   technicianCladding: '/assets/aistudio/1000127391_10ae27f3.jpg',
   technicianPrecision: '/assets/aistudio/Gddd_bdc31203.jpg',
   insulatedManifold: insulatedManifoldImg,
+  fieldDuctTransition: '/assets/aistudio/1_46242da4.jpeg',
+  fieldHorizontalVessel: '/assets/aistudio/2_681f5c63.jpeg',
+  fieldPipingNetwork: '/assets/aistudio/3_e99bb456.jpeg',
+  fieldVerticalColumn: '/assets/aistudio/4_6919aa3a.jpeg',
+  fieldDomedHead: '/assets/aistudio/5_c1c81109.jpeg',
 } as const;
 
 export const ISONIL_CONTACT = {
@@ -68,9 +84,78 @@ export const PAGE_MANIFEST = [
   { pageNumber: 2, id: 'page-2', label: 'Positionnement', shortTitle: '02 · Positionnement' },
   { pageNumber: 3, id: 'page-3', label: 'Ingénierie & Méthode', shortTitle: '03 · Ingénierie' },
   { pageNumber: 4, id: 'page-4', label: 'Prestations Industrielles', shortTitle: '04 · Prestations' },
-  { pageNumber: 5, id: 'page-5', label: 'Impact Opérationnel', shortTitle: '05 · Impact' },
-  { pageNumber: 6, id: 'page-6', label: 'Engagements & HSE', shortTitle: '06 · Engagements' },
-  { pageNumber: 7, id: 'page-7', label: 'Consultation & Contact', shortTitle: '07 · Contact' },
+  { pageNumber: 5, id: 'page-5', label: 'Réalisations Terrain', shortTitle: '05 · Réalisations' },
+  { pageNumber: 6, id: 'page-6', label: 'Impact Opérationnel', shortTitle: '06 · Impact' },
+  { pageNumber: 7, id: 'page-7', label: 'Engagements & HSE', shortTitle: '07 · Engagements' },
+  { pageNumber: 8, id: 'page-8', label: 'Consultation & Contact', shortTitle: '08 · Contact' },
+] as const;
+
+export const FIELD_SAMPLES: FieldSampleItem[] = [
+  {
+    id: 'piping-elbows',
+    figure: 'Fig. 03',
+    category: 'Tuyauteries & Coudes',
+    title: 'Réseaux complexes et coudes segmentés',
+    caption: 'Calorifugeage multi-niveaux avec coudes à secteurs et réservations sur robinetterie.',
+    src: ISONIL_IMAGES.fieldPipingNetwork,
+    alt: 'Réseau industriel calorifugé avec coudes métalliques segmentés et piquages ajustés',
+    imgClassName: 'w-full h-full object-cover object-[50%_42%]',
+  },
+  {
+    id: 'duct-transition',
+    figure: 'Fig. 04',
+    category: 'Gaines & Transitions',
+    title: 'Gaine grand diamètre et trémie sur mesure',
+    caption: 'Façonnage de tôlerie sur coude de grand rayon et pièce de transformation carrée-ronde.',
+    src: ISONIL_IMAGES.fieldDuctTransition,
+    alt: 'Gaine industrielle calorifugée avec coude segmenté et trémie de transition métallique',
+    imgClassName: 'w-full h-full object-cover object-top scale-[1.15] origin-top',
+  },
+  {
+    id: 'horizontal-vessel',
+    figure: 'Fig. 05',
+    category: 'Cuves & Équipements',
+    title: 'Équipement horizontal calorifugé',
+    caption: 'Enveloppe complète avec habillage étanché, piquages et fond bombé.',
+    src: ISONIL_IMAGES.fieldHorizontalVessel,
+    alt: 'Équipement industriel horizontal calorifugé avec revêtement métallique et fond bombé',
+    imgClassName: 'w-full h-full object-cover object-[58%_46%]',
+  },
+  {
+    id: 'vertical-column',
+    figure: 'Fig. 06',
+    category: 'Colonnes & Virolles',
+    title: 'Colonne verticale et piquage latéral',
+    caption: 'Pose de tôlerie grand format à recouvrements étanchés sur virole et piquage.',
+    src: ISONIL_IMAGES.fieldVerticalColumn,
+    alt: 'Colonne industrielle verticale habillée de tôlerie de protection étanchée avec piquage latéral',
+    imgClassName: 'w-full h-full object-cover object-[42%_50%]',
+  },
+  {
+    id: 'domed-head',
+    figure: 'Fig. 07',
+    category: 'Tôlerie de Précision',
+    title: 'Fond bombé en quartiers et conduite',
+    caption: 'Découpe radiale en quartiers ajustés et calorifugeage de ligne de procédé.',
+    src: ISONIL_IMAGES.fieldDomedHead,
+    alt: 'Finition de tôlerie en quartiers sur fond bombé et tuyauterie industrielle calorifugée',
+    imgClassName: 'w-full h-full object-cover object-[45%_44%]',
+  },
+];
+
+export const FIELD_CRAFTSMANSHIP_CUES = [
+  {
+    label: 'Traçage & tôlerie',
+    detail: 'Coudes segmentés, trémies et fonds bombés façonnés sur mesure.',
+  },
+  {
+    label: 'Points singuliers',
+    detail: 'Découpes ajustées autour des piquages, brides et organes.',
+  },
+  {
+    label: 'Protection CUI',
+    detail: 'Recouvrements soignés limitant les infiltrations d’humidité.',
+  },
 ] as const;
 
 export const EXECUTIVE_OVERVIEW = {

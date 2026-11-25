@@ -21,9 +21,10 @@ import {
   Page2Positioning,
   Page3Engineering,
   Page4Solutions,
-  Page5Performance,
-  Page6CommitmentsWorkflow,
-  Page7Contact,
+  Page5FieldSamples,
+  Page6Performance,
+  Page7CommitmentsWorkflow,
+  Page8Contact,
 } from './components/ProfilePages';
 import { IsonilLogoMark } from './components/A4PageLayout';
 import { ISONIL_CONTACT, PAGE_MANIFEST } from './data/isonilProfileData';
@@ -262,11 +263,13 @@ export default function App() {
       case 4:
         return <Page4Solutions />;
       case 5:
-        return <Page5Performance />;
+        return <Page5FieldSamples />;
       case 6:
-        return <Page6CommitmentsWorkflow />;
+        return <Page6Performance />;
       case 7:
-        return <Page7Contact />;
+        return <Page7CommitmentsWorkflow />;
+      case 8:
+        return <Page8Contact />;
       default:
         return <Page1Cover />;
     }
@@ -294,10 +297,19 @@ export default function App() {
         {/* Zone 2: Desktop Single-Line Navigation Links */}
         <nav
           aria-label="Sections du profil d’entreprise"
-          className="hidden lg:flex items-center gap-6 text-sm font-medium text-[#C7CDD8] h-full"
+          className="hidden lg:flex items-center gap-5 text-[13.5px] font-medium text-[#C7CDD8] h-full"
         >
           {PAGE_MANIFEST.slice(1).map((item) => {
             const isActive = activePage === item.pageNumber;
+            const navLabelMap: Record<number, string> = {
+              2: 'Positionnement',
+              3: 'Ingénierie',
+              4: 'Prestations',
+              5: 'Réalisations',
+              6: 'Impact',
+              7: 'Engagements',
+              8: 'Contact',
+            };
             return (
               <a
                 key={item.id}
@@ -310,17 +322,7 @@ export default function App() {
                   isActive ? 'text-[#EFEBD2]' : ''
                 }`}
               >
-                {item.pageNumber === 4
-                  ? 'Prestations'
-                  : item.pageNumber === 5
-                    ? 'Impact'
-                    : item.pageNumber === 6
-                      ? 'Engagements'
-                      : item.pageNumber === 7
-                        ? 'Contact'
-                        : item.pageNumber === 3
-                          ? 'Ingénierie'
-                          : 'Positionnement'}
+                {navLabelMap[item.pageNumber] ?? item.label}
                 {isActive && (
                   <span
                     className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#C81E24]"
@@ -474,9 +476,10 @@ export default function App() {
             <Page2Positioning />
             <Page3Engineering />
             <Page4Solutions />
-            <Page5Performance />
-            <Page6CommitmentsWorkflow />
-            <Page7Contact />
+            <Page5FieldSamples />
+            <Page6Performance />
+            <Page7CommitmentsWorkflow />
+            <Page8Contact />
           </>
         ) : (
           <div className="flex flex-col items-center gap-4 sm:gap-5 w-full">

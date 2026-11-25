@@ -87,7 +87,7 @@ export const IsonilWordmark: React.FC<{
 export const A4PageLayout: React.FC<A4PageLayoutProps> = ({
   id,
   pageNumber,
-  totalPages = 7,
+  totalPages = 8,
   sectionLabel,
   children,
   variant = 'standard',

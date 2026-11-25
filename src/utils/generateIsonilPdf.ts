@@ -6,6 +6,8 @@ import {
   COMMITMENTS_LIST,
   CONTACT_INTAKE_CUES,
   EXECUTIVE_OVERVIEW,
+  FIELD_CRAFTSMANSHIP_CUES,
+  FIELD_SAMPLES,
   ISONIL_CONTACT,
   ISONIL_IMAGES,
   PROCUREMENT_WORKFLOW,
@@ -166,7 +168,7 @@ function drawSectionHeading(doc: jsPDF, kicker: string, title: string, yStart = 
 }
 
 export async function generateIsonilPdf(): Promise<void> {
-  const TOTAL_PAGES = 7;
+  const TOTAL_PAGES = 8;
   const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
@@ -174,51 +176,96 @@ export async function generateIsonilPdf(): Promise<void> {
     compress: true,
   });
 
-  const [logoImg, coverImg, techCladdingImg, techPrecisionImg, manifoldImg, qrImg] =
-    await Promise.all([
-      loadImageProcessedDataUrl(ISONIL_IMAGES.logo, {
-        sxRatio: 0.1,
-        syRatio: 0.1,
-        swRatio: 0.8,
-        shRatio: 0.8,
-        format: 'image/png',
-      }),
-      loadImageProcessedDataUrl(ISONIL_IMAGES.coverIndustrialPiping, {
-        targetAspectRatio: 174 / 144,
-        format: 'image/jpeg',
-      }),
-      loadImageProcessedDataUrl(ISONIL_IMAGES.technicianCladding, {
-        targetAspectRatio: 86 / 50,
-        format: 'image/jpeg',
-      }),
-      loadImageProcessedDataUrl(ISONIL_IMAGES.technicianPrecision, {
-        sxRatio: 0.0,
-        syRatio: 0.14,
-        swRatio: 0.85,
-        shRatio: 0.86,
-        targetAspectRatio: 86 / 50,
-        anchorX: 0.35,
-        anchorY: 0.65,
-        format: 'image/jpeg',
-      }),
-      loadImageProcessedDataUrl(ISONIL_IMAGES.insulatedManifold, {
-        targetAspectRatio: 178 / 66,
-        format: 'image/jpeg',
-      }),
-      QRCode.toDataURL(ISONIL_CONTACT.websiteUrl, {
-        width: 240,
-        margin: 1,
-        color: { dark: '#131822', light: '#FFFFFF' },
-      }).catch(() => null),
-    ]);
+  const [
+    logoImg,
+    coverImg,
+    techCladdingImg,
+    techPrecisionImg,
+    fieldPipingImg,
+    fieldDuctImg,
+    fieldVesselImg,
+    fieldColumnImg,
+    fieldDomedImg,
+    manifoldImg,
+    qrImg,
+  ] = await Promise.all([
+    loadImageProcessedDataUrl(ISONIL_IMAGES.logo, {
+      sxRatio: 0.1,
+      syRatio: 0.1,
+      swRatio: 0.8,
+      shRatio: 0.8,
+      format: 'image/png',
+    }),
+    loadImageProcessedDataUrl(ISONIL_IMAGES.coverIndustrialPiping, {
+      targetAspectRatio: 174 / 144,
+      format: 'image/jpeg',
+    }),
+    loadImageProcessedDataUrl(ISONIL_IMAGES.technicianCladding, {
+      targetAspectRatio: 86 / 50,
+      format: 'image/jpeg',
+    }),
+    loadImageProcessedDataUrl(ISONIL_IMAGES.technicianPrecision, {
+      sxRatio: 0.0,
+      syRatio: 0.14,
+      swRatio: 0.85,
+      shRatio: 0.86,
+      targetAspectRatio: 86 / 50,
+      anchorX: 0.35,
+      anchorY: 0.65,
+      format: 'image/jpeg',
+    }),
+    // 5 authentic field samples with clean proportional cover crops
+    loadImageProcessedDataUrl(ISONIL_IMAGES.fieldPipingNetwork, {
+      targetAspectRatio: 86 / 64,
+      anchorX: 0.5,
+      anchorY: 0.42,
+      format: 'image/jpeg',
+    }),
+    loadImageProcessedDataUrl(ISONIL_IMAGES.fieldDuctTransition, {
+      sxRatio: 0.0,
+      syRatio: 0.0,
+      swRatio: 1.0,
+      shRatio: 0.87,
+      targetAspectRatio: 86 / 64,
+      anchorX: 0.5,
+      anchorY: 0.28,
+      format: 'image/jpeg',
+    }),
+    loadImageProcessedDataUrl(ISONIL_IMAGES.fieldHorizontalVessel, {
+      targetAspectRatio: 56.5 / 63,
+      anchorX: 0.58,
+      anchorY: 0.46,
+      format: 'image/jpeg',
+    }),
+    loadImageProcessedDataUrl(ISONIL_IMAGES.fieldVerticalColumn, {
+      targetAspectRatio: 56.5 / 63,
+      anchorX: 0.42,
+      anchorY: 0.5,
+      format: 'image/jpeg',
+    }),
+    loadImageProcessedDataUrl(ISONIL_IMAGES.fieldDomedHead, {
+      targetAspectRatio: 56.5 / 63,
+      anchorX: 0.45,
+      anchorY: 0.44,
+      format: 'image/jpeg',
+    }),
+    loadImageProcessedDataUrl(ISONIL_IMAGES.insulatedManifold, {
+      targetAspectRatio: 178 / 66,
+      format: 'image/jpeg',
+    }),
+    QRCode.toDataURL(ISONIL_CONTACT.websiteUrl, {
+      width: 240,
+      margin: 1,
+      color: { dark: '#131822', light: '#FFFFFF' },
+    }).catch(() => null),
+  ]);
 
   /* ========================================================================
-     PAGE 1 — COUVERTURE ARCHITECTURALE (IDENTITÉ ISONIL.COM)
+     PAGE 1 — COUVERTURE ARCHITECTURALE (PHOTO PRINCIPALE CONSERVÉE)
      ======================================================================== */
   doc.setFillColor(...RGB.navy900);
   doc.rect(0, 0, 210, 297, 'F');
 
-  // Vertical ISONIL red spine rule
   doc.setFillColor(...RGB.crimson600);
   doc.rect(0, 0, 1.3, 225, 'F');
 
@@ -307,7 +354,6 @@ export async function generateIsonilPdf(): Promise<void> {
   drawRunningHeaderAndFooter(doc, 2, TOTAL_PAGES, '01 · Positionnement', logoImg);
   let y = drawSectionHeading(doc, EXECUTIVE_OVERVIEW.kicker, EXECUTIVE_OVERVIEW.title, 28);
 
-  // Left 4/12 Cool Steel Anchor Rail
   const railX = 16;
   const railW = 58;
   const railY = y;
@@ -360,7 +406,6 @@ export async function generateIsonilPdf(): Promise<void> {
     ryFact += 30;
   });
 
-  // Right 8/12 Open Editorial Column
   const colX = 81;
   const colW = 113;
 
@@ -407,7 +452,6 @@ export async function generateIsonilPdf(): Promise<void> {
   doc.setDrawColor(...RGB.hairline);
   doc.line(colX, tableY + 4 * 29, 194, tableY + 4 * 29);
 
-  // Bottom 4-Column Hairline Strip
   const modalY = 228;
   doc.setDrawColor(...RGB.navy900);
   doc.setLineWidth(0.4);
@@ -493,14 +537,13 @@ export async function generateIsonilPdf(): Promise<void> {
 
     doc.setTextColor(...RGB.navy800);
     doc.text(doc.splitTextToSize(row.protectionFinish, 40), 152, y + 7.5);
-    y += 20.5;
+    y += 21.5;
   });
   doc.setDrawColor(...RGB.navy900);
   doc.setLineWidth(0.4);
   doc.line(16, y, 194, y);
   y += 9;
 
-  // Connected 6-Milestone Engineering Progression Rail
   doc.setFillColor(...RGB.paperAlt);
   doc.rect(16, y, 178, 28, 'F');
   doc.setDrawColor(...RGB.hairline);
@@ -535,7 +578,6 @@ export async function generateIsonilPdf(): Promise<void> {
   });
   y += 37;
 
-  // 6-Row Typographic Deliverable Ledger
   doc.setDrawColor(...RGB.hairline);
   doc.setLineWidth(0.25);
   doc.line(16, y, 194, y);
@@ -572,7 +614,6 @@ export async function generateIsonilPdf(): Promise<void> {
     28
   );
 
-  // Documentary Photography Diptych with Fig. 01 & Fig. 02
   if (techCladdingImg) {
     doc.addImage(techCladdingImg, 'JPEG', 16, y, 86, 50, undefined, 'FAST');
     doc.setFont('helvetica', 'normal');
@@ -599,7 +640,6 @@ export async function generateIsonilPdf(): Promise<void> {
   }
   y += 65;
 
-  // 2-Column Architectural Hairline Specification Ledger (No Boxes)
   const colWidth = 85;
   SERVICES_LIST.forEach((srv, idx) => {
     const col = idx % 2;
@@ -641,13 +681,132 @@ export async function generateIsonilPdf(): Promise<void> {
   });
 
   /* ========================================================================
-     PAGE 5 — IMPACT OPÉRATIONNEL
+     PAGE 5 — RÉALISATIONS & SAVOIR-FAIRE TERRAIN (5 ÉCHANTILLONS RÉELS)
      ======================================================================== */
   doc.addPage();
-  drawRunningHeaderAndFooter(doc, 5, TOTAL_PAGES, '04 · Impact Opérationnel', logoImg);
+  drawRunningHeaderAndFooter(doc, 5, TOTAL_PAGES, '04 · Savoir-Faire Terrain', logoImg);
   y = drawSectionHeading(
     doc,
-    '04 · IMPACT OPÉRATIONNEL',
+    '04 · SAVOIR-FAIRE TERRAIN & EXEMPLES D’OUVRAGES',
+    'Exécution terrain sur tuyauteries, gaines et équipements',
+    28
+  );
+
+  // Row 1: 2 Large Plates (86mm x 64mm)
+  const topPlates = [
+    { sample: FIELD_SAMPLES[0], img: fieldPipingImg, x: 16 },
+    { sample: FIELD_SAMPLES[1], img: fieldDuctImg, x: 108 },
+  ];
+
+  topPlates.forEach(({ sample, img, x }) => {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.2);
+    doc.setTextColor(...RGB.crimson600);
+    doc.text(sample.category.toUpperCase(), x, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...RGB.inkMuted);
+    doc.text(sample.figure.toUpperCase(), x + 86, y, { align: 'right' });
+
+    doc.setDrawColor(...RGB.navy900);
+    doc.setLineWidth(0.35);
+    doc.line(x, y + 2, x + 86, y + 2);
+
+    if (img) {
+      doc.addImage(img, 'JPEG', x, y + 4, 86, 64, undefined, 'FAST');
+    }
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.8);
+    doc.setTextColor(...RGB.navy900);
+    doc.text(sample.title, x, y + 73);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.4);
+    doc.setTextColor(75, 85, 99);
+    doc.text(doc.splitTextToSize(sample.caption, 86), x, y + 77.5);
+
+    doc.setDrawColor(...RGB.hairline);
+    doc.setLineWidth(0.25);
+    doc.line(x, y + 85.5, x + 86, y + 85.5);
+  });
+
+  y += 93;
+
+  // Row 2: 3 Technical Plates (56.5mm x 63mm)
+  const bottomPlates = [
+    { sample: FIELD_SAMPLES[2], img: fieldVesselImg, x: 16 },
+    { sample: FIELD_SAMPLES[3], img: fieldColumnImg, x: 76.75 },
+    { sample: FIELD_SAMPLES[4], img: fieldDomedImg, x: 137.5 },
+  ];
+
+  bottomPlates.forEach(({ sample, img, x }) => {
+    const pw = 56.5;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(6.8);
+    doc.setTextColor(...RGB.crimson600);
+    doc.text(sample.category.toUpperCase(), x, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...RGB.inkMuted);
+    doc.text(sample.figure.toUpperCase(), x + pw, y, { align: 'right' });
+
+    doc.setDrawColor(...RGB.navy900);
+    doc.setLineWidth(0.35);
+    doc.line(x, y + 2, x + pw, y + 2);
+
+    if (img) {
+      doc.addImage(img, 'JPEG', x, y + 4, pw, 63, undefined, 'FAST');
+    }
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.2);
+    doc.setTextColor(...RGB.navy900);
+    const tLines = doc.splitTextToSize(sample.title, pw);
+    doc.text(tLines, x, y + 72);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.1);
+    doc.setTextColor(75, 85, 99);
+    const capY = y + 72 + tLines.length * 3.8 + 0.8;
+    doc.text(doc.splitTextToSize(sample.caption, pw), x, capY);
+
+    doc.setDrawColor(...RGB.hairline);
+    doc.setLineWidth(0.25);
+    doc.line(x, y + 88, x + pw, y + 88);
+  });
+
+  // Recessed Technical Craftsmanship Strip
+  const craftY = 250;
+  doc.setFillColor(...RGB.paperAlt);
+  doc.rect(16, craftY, 178, 22, 'F');
+  doc.setFillColor(...RGB.navy900);
+  doc.rect(16, craftY, 1.2, 22, 'F');
+
+  FIELD_CRAFTSMANSHIP_CUES.forEach((cue, idx) => {
+    const cx = 21 + idx * 58;
+    if (idx > 0) {
+      doc.setDrawColor(...RGB.hairline);
+      doc.setLineWidth(0.25);
+      doc.line(cx - 3.5, craftY + 4, cx - 3.5, craftY + 18);
+    }
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.2);
+    doc.setTextColor(...RGB.crimson600);
+    doc.text(cue.label.toUpperCase(), cx, craftY + 7.5);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(39, 48, 63);
+    doc.text(doc.splitTextToSize(cue.detail, 53), cx, craftY + 12.5);
+  });
+
+  /* ========================================================================
+     PAGE 6 — IMPACT OPÉRATIONNEL
+     ======================================================================== */
+  doc.addPage();
+  drawRunningHeaderAndFooter(doc, 6, TOTAL_PAGES, '05 · Impact Opérationnel', logoImg);
+  y = drawSectionHeading(
+    doc,
+    '05 · IMPACT OPÉRATIONNEL',
     'Une intervention pensée pour vos opérations',
     28
   );
@@ -664,13 +823,12 @@ export async function generateIsonilPdf(): Promise<void> {
     );
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...RGB.crimson600);
-    doc.text('FIG. 03', 194, y + 71, { align: 'right' });
+    doc.text('FIG. 08', 194, y + 71, { align: 'right' });
     doc.setDrawColor(...RGB.hairline);
     doc.line(16, y + 73, 194, y + 73);
   }
   y += 83;
 
-  // 2x3 Hairline Operational Benefits Grid
   CLIENT_BENEFITS.forEach((ben, idx) => {
     const col = idx % 2;
     const row = Math.floor(idx / 2);
@@ -700,7 +858,6 @@ export async function generateIsonilPdf(): Promise<void> {
     doc.text(bDesc, bx, bDescY);
   });
 
-  // Recessed Technical Disclaimer
   const noteY = 254;
   doc.setFillColor(...RGB.paperAlt);
   doc.rect(16, noteY, 178, 15, 'F');
@@ -720,18 +877,17 @@ export async function generateIsonilPdf(): Promise<void> {
   );
 
   /* ========================================================================
-     PAGE 6 — ENGAGEMENTS & CIRCUIT D'INTERVENTION
+     PAGE 7 — ENGAGEMENTS & CIRCUIT D'INTERVENTION
      ======================================================================== */
   doc.addPage();
-  drawRunningHeaderAndFooter(doc, 6, TOTAL_PAGES, '05 · Engagements & HSE', logoImg);
+  drawRunningHeaderAndFooter(doc, 7, TOTAL_PAGES, '06 · Engagements & HSE', logoImg);
   y = drawSectionHeading(
     doc,
-    '05 · ENGAGEMENTS D’EXÉCUTION & GOUVERNANCE',
+    '06 · ENGAGEMENTS D’EXÉCUTION & GOUVERNANCE',
     'Qualité d’ouvrage, tenue des délais et rigueur HSE',
     28
   );
 
-  // Midnight Navy Anchor Band with Crimson Top Edge & 3 Vertical Pillar Columns
   const bandH = 128;
   doc.setFillColor(...RGB.navy900);
   doc.rect(16, y, 178, bandH, 'F');
@@ -795,7 +951,6 @@ export async function generateIsonilPdf(): Promise<void> {
 
   y += bandH + 16;
 
-  // 4-Step Procurement & Engineering Consultation Circuit
   doc.setDrawColor(...RGB.navy900);
   doc.setLineWidth(0.5);
   doc.line(16, y, 194, y);
@@ -828,13 +983,13 @@ export async function generateIsonilPdf(): Promise<void> {
   });
 
   /* ========================================================================
-     PAGE 7 — CONSULTATION & COORDONNÉES
+     PAGE 8 — CONSULTATION & COORDONNÉES
      ======================================================================== */
   doc.addPage();
-  drawRunningHeaderAndFooter(doc, 7, TOTAL_PAGES, '06 · Contact', logoImg);
+  drawRunningHeaderAndFooter(doc, 8, TOTAL_PAGES, '07 · Contact', logoImg);
   y = drawSectionHeading(
     doc,
-    '06 · CONSULTATION & COORDONNÉES',
+    '07 · CONSULTATION & COORDONNÉES',
     'Parlons de votre installation',
     28
   );
@@ -849,7 +1004,6 @@ export async function generateIsonilPdf(): Promise<void> {
   doc.text(contactLead, 16, y);
   y += contactLead.length * 5.2 + 10;
 
-  // Main Authoritative Contact Block (Midnight Navy + Crimson Edge)
   doc.setFillColor(...RGB.navy900);
   doc.rect(16, y, 178, 104, 'F');
   doc.setFillColor(...RGB.crimson600);
@@ -928,7 +1082,6 @@ export async function generateIsonilPdf(): Promise<void> {
   }
   y += 116;
 
-  // Practical Intake Cues
   doc.setDrawColor(...RGB.hairline);
   doc.line(16, y, 194, y);
   doc.setFont('helvetica', 'bold');
@@ -953,7 +1106,6 @@ export async function generateIsonilPdf(): Promise<void> {
     doc.text(doc.splitTextToSize(cue.detail, 56), qx, y + 12);
   });
 
-  // Sober Call to Action Strip
   const ctaY = 247;
   doc.setFillColor(...RGB.paperAlt);
   doc.rect(16, ctaY, 178, 22, 'F');
